@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -25,6 +26,8 @@ type Block struct {
 
 var Blockchain []Block
 
+var mutex = &sync.Mutex{}
+
 type Message struct {
 	BPM int
 }
@@ -37,9 +40,12 @@ func main() {
 
 	go func() {
 		t := time.Now()
-		genesisBlock := Block{0, t.String(), 0, "", ""}
+		genesisBlock := Block{}
+		genesisBlock = Block{0, t.String(), 0, "", ""}
 		spew.Dump(genesisBlock)
+		mutex.Lock()
 		Blockchain = append(Blockchain, genesisBlock)
+		mutex.Unlock()
 	}()
 	log.Fatal(run())
 }
@@ -121,6 +127,7 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/json")
 	var m Message
 
 	decoder := json.NewDecoder(r.Body)
