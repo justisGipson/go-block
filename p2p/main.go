@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	mrand "math/rand"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
